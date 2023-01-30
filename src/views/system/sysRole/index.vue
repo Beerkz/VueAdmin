@@ -48,6 +48,7 @@
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="edit(scope.row.id)" />
             <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
+            <el-button type="view" icon="el-icon-view" size="mini" title="分配权限" @click="removeDataById(scope.row.id)" />
           </template>
         </el-table-column>
       </el-table>
