@@ -48,7 +48,7 @@
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="edit(scope.row.id)" />
             <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
-            <el-button type="view" icon="el-icon-view" size="mini" title="分配权限" @click="removeDataById(scope.row.id)" />
+            <el-button type="view" icon="el-icon-view" size="mini" title="查看" @click="view(scope.row.id)" />
           </template>
         </el-table-column>
       </el-table>
@@ -65,8 +65,8 @@
       />
 
       <!-- 弹出层 -->
-      <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
-        <el-form ref="dataForm" :model="sysRole" label-width="150px" size="small" style="padding-right: 40px;">
+      <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%" >
+        <el-form ref="dataForm" :model="sysRole" label-width="150px" size="small" style="padding-right: 40px;" :disabled="updateDialogVisible">
           <el-form-item label="角色名称">
             <el-input v-model="sysRole.roleName" blur="" />
           </el-form-item>
@@ -76,10 +76,19 @@
           <el-form-item label="角色描述">
             <el-input v-model="sysRole.description" />
           </el-form-item>
+          <el-form-item v-if="showCheckbox === true" label="权限赋予">
+            <el-tree
+              ref="tree"
+              :data="sysMenuList"
+              node-key="id"
+              show-checkbox
+              :props="defaultProps"
+            />
+          </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
+          <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false;showCheckbox=true;updateDialogVisible=false">取 消</el-button>
+          <el-button v-if="updateDialogVisible!=true" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
         </span>
       </el-dialog>
       <!-- <el-pagination
@@ -96,6 +105,7 @@
 
 <script>
 import api from '@/api/role/role'
+import menuApi from '@/api/menu/menu'
 import { RoleModel } from '@/model/role/role'
 export default {
   data() {
@@ -103,6 +113,8 @@ export default {
       listLoading: false, // 是否显示加载图标
       list: [],
       total: 0,
+      // 弹窗是否可以更改
+      updateDialogVisible: false,
       dialogVisible: false,
       pageCondition: {
         roleName: '',
@@ -110,7 +122,15 @@ export default {
         page: 1,
         start: 0
       },
-      sysRole: RoleModel
+      sysRole: RoleModel,
+      sysMenuList: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      loading: false, // 用来标识是否正在保存请求中的标识, 防止重复提交
+      showCheckbox: false
+
     }
   },
   created() {
@@ -179,11 +199,56 @@ export default {
     },
     //  添加按钮
     insertRole() {
+      // 关闭权限树
+      this.showCheckbox = false
       this.dialogVisible = true
       this.sysRole = {}
     },
+    /**
+     * 获取角色权限
+     * @param id
+     */
+    fetchData(id) {
+      // 打开用户权限树展示
+      this.showCheckbox = true
+      menuApi.toAssign(id).then(response => {
+        this.sysMenuList = {}
+        this.sysMenuList = response.data
+        const sysMenuList = this.sysMenuList
+        const checkedIds = this.getCheckedIds(sysMenuList)
+        this.$refs.tree.setCheckedKeys(checkedIds)
+      })
+    },
+    view(id) {
+      this.fetchData(id)
+      this.updateDialogVisible = true
+      this.showCheckbox = true
+      api.getRoleId(id).then(response => {
+        this.sysRole.id = response.data.id
+        this.sysRole.roleName = response.data.roleName
+        this.sysRole.roleCode = response.data.roleCode
+        this.sysRole.description = response.data.description
+        this.dialogVisible = true
+      })
+    },
+    /**
+     得到所有选中的id列表
+     */
+    getCheckedIds(auths, initArr = []) {
+      return auths.reduce((pre, item) => {
+        if (item.select && (item.children == null || item.children.length === 0)) {
+          pre.push(item.id)
+        } else if (item.children) {
+          this.getCheckedIds(item.children, initArr)
+        }
+        return pre
+      }, initArr)
+    },
     // 修改按钮
     edit(id) {
+      // 启用更改
+      this.updateDialogVisible = false
+      this.fetchData(id)
       api.getRoleId(id).then(response => {
         this.sysRole.id = response.data.id
         this.sysRole.roleName = response.data.roleName
@@ -195,8 +260,12 @@ export default {
     saveOrUpdate() {
       if (this.sysRole.id != null) {
         this.updateRole()
+        this.getCheckedNodes(this.sysRole.id)
       } else {
+        debugger
         this.saveRole()
+        // 关闭权限树
+        this.showCheckbox = false
       }
     },
     //  添加方法
@@ -235,6 +304,22 @@ export default {
             message: response.data.msg
           })
         }
+      })
+    },
+    getCheckedNodes(id) {
+      // 获取到当前子节点
+      // const checkedNodes = this.$refs.tree.getCheckedNodes()
+      // 获取到当前子节点及父节点
+      const allCheckedNodes = this.$refs.tree.getCheckedNodes(false, true)
+      const idList = allCheckedNodes.map(node => node.id)
+      const assginMenuVo = {
+        roleId: id,
+        menuIdLists: idList
+      }
+      this.loading = true
+      menuApi.doAssign(assginMenuVo).then(result => {
+        this.loading = false
+        this.$message.success(result.msg || '分配权限成功')
       })
     }
   }

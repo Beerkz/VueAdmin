@@ -115,7 +115,7 @@
 
     <!-- 弹出层 -->
     <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
-      <el-form ref="dataForm" :model="usermodel" label-width="100px" size="small" style="padding-right: 40px;">
+      <el-form ref="dataForm" :model="usermodel" label-width="100px" size="small" style="padding-right: 40px;" :disabled="updateDialogVisible">
         <!--        <el-row>-->
         <!--          <el-col :span="24">-->
         <el-form-item label="登录名:" label-width="30%">
@@ -161,7 +161,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
+        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -185,7 +185,8 @@ export default {
       roleList: [],
       deptList: [],
       roleIds: [],
-      view: false
+      view: false,
+      updateDialogVisible: false
 
     }
   },
@@ -349,6 +350,7 @@ export default {
       }
     },
     viewUser(id) {
+      this.updateDialogVisible = true
       this.usermodel = {}
       this.roleIds = []
       userApi.getUserId(id).then(response => {
@@ -373,6 +375,7 @@ export default {
       })
     },
     editUser(id) {
+      this.updateDialogVisible = false
       userApi.getUserId(id).then(response => {
         if (response.identifier === 'success') {
           this.usermodel = response.data

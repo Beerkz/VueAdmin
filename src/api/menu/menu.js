@@ -36,5 +36,18 @@ export default {
       url: `${menu_api}` + `deleteMenu/${id}`,
       method: `get`
     })
+  },
+  toAssign(id) {
+    return request({
+      url: `${menu_api}` + `/toAssign/${id}`,
+      method: 'get'
+    })
+  },
+  doAssign(AssignMenuVo) {
+    return request({
+      url: `${menu_api}` + `/doAssign`,
+      method: 'post',
+      data: AssignMenuVo
+    })
   }
 }
