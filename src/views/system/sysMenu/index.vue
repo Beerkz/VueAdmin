@@ -3,7 +3,7 @@
 
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" @click="add()">添 加</el-button>
+      <el-button type="success" icon="el-icon-plus" size="mini" :disabled="$hasBP('bnt.sysMenu.add') === false" @click="add()">添 加</el-button>
       <el-button type="success" icon="el-icon-refresh" size="mini" @click="fetchData()">刷 新</el-button>
     </div>
     <el-table
@@ -33,7 +33,7 @@
             :inactive-value="0"
             active-color="#13ce66"
             inactive-color="#ff4949"
-            disabled="true"
+            :disabled="true"
             @change="changeStatus(scope.row)"
           />
         </template>
@@ -41,8 +41,8 @@
       <el-table-column prop="createTime" label="创建时间" width="160" />
       <el-table-column label="操作" width="180" align="center" fixed="right">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.type !== 2" type="success" icon="el-icon-plus" size="mini" title="添加下级节点" @click="add(scope.row)" />
-          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="edit(scope.row)" />
+          <el-button v-if="scope.row.type !== 2" type="success" icon="el-icon-plus" size="mini" title="添加下级节点" :disabled="$hasBP('bnt.sysMenu.add') === false" @click="add(scope.row)" />
+          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" :disabled="$hasBP('bnt.sysMenu.update') === false" @click="edit(scope.row)" />
           <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" :disabled="scope.row.children!=null && scope.row.children.length>0" @click="removeDataById(scope.row.id)" />
         </template>
       </el-table-column>
@@ -52,7 +52,7 @@
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="40%">
       <el-form ref="dataForm" :model="sysMenu" label-width="150px" size="small" style="padding-right: 40px;">
         <el-form-item v-if="sysMenu.id === ''" label="上级部门">
-          <el-input v-model="sysMenu.parentName" disabled="true" />
+          <el-input v-model="sysMenu.parentName" :disabled="true" />
         </el-form-item>
         <el-form-item label="菜单类型" prop="type">
           <el-radio-group v-model="sysMenu.type" :disabled="typeDisabled">
@@ -123,7 +123,6 @@
 
 <script>
 import api from '@/api/menu/menu'
-import userApi from '@/api/user/user'
 const defaultForm = {
   id: '',
   parentId: '',
@@ -238,7 +237,7 @@ export default {
         this.fetchData()
         this.$message({
           type: 'success',
-          message: response.message
+          message: response.msg
         })
       }).catch(() => {
         this.$message.info('取消删除')

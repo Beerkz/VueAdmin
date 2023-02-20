@@ -6,7 +6,9 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    menus: '',
+    buttons: []
   }
 }
 
@@ -24,6 +26,13 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  // new
+  SET_MENUS: (state, menus) => {
+    state.menus = menus
+  },
+  SET_BUTTONS: (state, buttons) => {
+    state.buttons = buttons
   }
 }
 
@@ -34,15 +43,15 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+          commit('SET_TOKEN', data.token)
+          setToken(data.token)
         resolve()
       }).catch(error => {
         reject(error)
       })
     })
   },
-  
+
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
@@ -57,6 +66,9 @@ const actions = {
 
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
+        // new
+        commit('SET_MENUS', data.menus)
+        commit('SET_BUTTONS', data.buttons)
         resolve(data)
       }).catch(error => {
         reject(error)

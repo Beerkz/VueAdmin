@@ -48,7 +48,7 @@
     </div>
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertUser">添 加</el-button>
+      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertUser" :disabled="$hasBP('bnt.sysUser.add') === false">添 加</el-button>
     </div>
     <!-- 表格 -->
     <el-table
@@ -73,8 +73,8 @@
       <el-table-column prop="name" label="姓名" />
       <el-table-column prop="stuNo" label="学号" />
       <el-table-column prop="phone" label="手机" />
-      <el-table-column prop="deptName" label="部门" />
-      <el-table-column prop="postName" label="岗位" />
+<!--      <el-table-column prop="deptName" label="部门" />-->
+<!--      <el-table-column prop="postName" label="岗位" />-->
       <el-table-column prop="createTime" label="创建时间" width="160" />
       <el-table-column
         label="是否启用"
@@ -95,9 +95,14 @@
       </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
+<!--          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.update')  === false"/>-->
+<!--          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.list')  === false"/>-->
+<!--          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" :disabled="$hasBP('bnt.sysUser.remove')  === false"/>-->
+
           <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />
           <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
+          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)"/>
+
         </template>
       </el-table-column>
     </el-table>

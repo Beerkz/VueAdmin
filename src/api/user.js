@@ -4,7 +4,7 @@ export function login(data) {
   return request({
     url: 'system/secured/login',
     method: 'post',
-    data:''
+    data: data
   })
 }
 

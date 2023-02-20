@@ -37,11 +37,11 @@ export const constantRoutes = [
     hidden: true
   },
 
-  {
-    path: '/404',
-    component: () => import('@/views/404'),
-    hidden: true
-  },
+  // {
+  //   path: '/404',
+  //   component: () => import('@/views/404'),
+  //   hidden: true
+  // },
 
   {
     path: '/',
@@ -53,38 +53,38 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: '实验室分时预约系统', icon: 'dashboard' }
     }]
-  },
+  }
 
-  {
-    path: '/system',
-    component: Layout,
-    redirect: '/system/list', // 默认页面路径
-    name: 'System',
-    meta: { title: '系统管理', icon: 'el-icon-s-help' },
-    children: [
-      {
-        name: 'SysRole',
-        path: 'sysRole',
-        component: () => import('@/views/system/sysRole/index'),
-        meta: { title: '角色管理', icon: 'table' }
-      },
-      {
-        name: 'SysUser',
-        path: 'sysUser',
-        component: () => import('@/views/system/sysUser/index'),
-        meta: { title: '用户管理', icon: 'tree' }
-      },
-      {
-        name: 'SysMenu',
-        path: 'sysMenu',
-        component: () => import('@/views/system/sysMenu/index'),
-        meta: { title: '菜单管理', icon: 'table' }
-      }
-    ]
-  },
-
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // {
+  //   path: '/system',
+  //   component: Layout,
+  //   redirect: '/system/list', // 默认页面路径
+  //   name: 'System',
+  //   meta: { title: '系统管理', icon: 'el-icon-s-help' },
+  //   children: [
+  //     {
+  //       name: 'SysRole',
+  //       path: 'sysRole',
+  //       component: () => import('@/views/system/sysRole/index'),
+  //       meta: { title: '角色管理', icon: 'table' }
+  //     },
+  //     {
+  //       name: 'SysUser',
+  //       path: 'sysUser',
+  //       component: () => import('@/views/system/sysUser/index'),
+  //       meta: { title: '用户管理', icon: 'tree' }
+  //     },
+  //     {
+  //       name: 'SysMenu',
+  //       path: 'sysMenu',
+  //       component: () => import('@/views/system/sysMenu/index'),
+  //       meta: { title: '菜单管理', icon: 'table' }
+  //     }
+  //   ]
+  // },
+  //
+  // // 404 page must be placed at the end !!!
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({

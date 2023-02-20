@@ -19,7 +19,7 @@
       </div>
       <!-- 工具条 -->
       <div class="tools-div">
-        <el-button type="success" icon="el-icon-plus" size="mini" @click="insertRole">添 加</el-button>
+        <el-button type="success" icon="el-icon-plus" size="mini" @click="insertRole" :disabled="$hasBP('bnt.sysRole.add') === false">添 加</el-button>
       </div>
       <!-- 表格 -->
       <el-table
@@ -46,9 +46,9 @@
         <el-table-column prop="createTime" label="创建时间" width="160" />
         <el-table-column label="操作" width="200" align="center">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="edit(scope.row.id)" />
-            <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
-            <el-button type="view" icon="el-icon-view" size="mini" title="查看" @click="view(scope.row.id)" />
+            <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="edit(scope.row.id)" :disabled="$hasBP('bnt.sysRole.update')  === false"/>
+            <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" :disabled="$hasBP('bnt.sysRole.remove')  === false"/>
+            <el-button type="view" icon="el-icon-view" size="mini" title="查看" @click="view(scope.row.id)" :disabled="$hasBP('bnt.sysRole.list')  === false"/>
           </template>
         </el-table-column>
       </el-table>
