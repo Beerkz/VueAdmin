@@ -4,7 +4,7 @@
     <div class="search-div">
       <el-form label-width="70px" size="small">
         <el-row>
-          <el-col :span="8">
+          <el-col :span="10">
             <el-form-item label="操作时间">
               <el-date-picker
                 v-model="createTimes"
@@ -15,6 +15,11 @@
                 value-format="yyyy-MM-dd HH:mm:ss"
                 style="margin-right: 10px;width: 100%;"
               />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="登录名">
+              <el-input v-model="pageCondition.username" style="width: 20%" prefix-icon="el-icon-search" placeholder="角色名称" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -44,35 +49,15 @@
       </el-table-column>
 
       <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="name" label="姓名" />
-      <el-table-column prop="stuNo" label="学号" />
-      <el-table-column prop="phone" label="手机" />
+      <el-table-column prop="ipaddr" label="地址" />
+      <el-table-column prop="status" label="状态" :formatter="getStatus" />
+      <el-table-column prop="msg" label="提示信息" />
       <!--      <el-table-column prop="deptName" label="部门" />-->
       <!--      <el-table-column prop="postName" label="岗位" />-->
-      <el-table-column prop="createTime" label="创建时间" width="160" />
-      <el-table-column
-        label="是否启用"
-        width="160"
-      >
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.status"
-            :active-value="0"
-            :inactive-value="1"
-            active-text="启用"
-            inactive-text="禁用"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            @change="changeStatus(scope.row)"
-          />
-        </template>
-      </el-table-column>
+      <el-table-column prop="accessTime" label="访问时间" width="160" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" />
           <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
-
         </template>
       </el-table-column>
     </el-table>
@@ -92,11 +77,118 @@
 
 </template>
 <script>
+import logapi from '@/api/log/loginLog'
+import { logCondition } from '@/model/log/log'
+
 export default {
-  data(){
+  data() {
     return {
+      listLoading: true,
       list: [],
+      total: 0,
+      createTimes: [],
+      pageCondition: logCondition
     }
+  },
+  created() {
+    console.log(11111)
+    this.page()
+  },
+  methods: {
+    /**
+     * 分页查询
+     */
+    page() {
+      logapi.page(this.pageCondition)
+        .then(response => {
+          this.list = response.data.data
+          this.total = response.data.total
+          this.listLoading = false
+          if (response.identifier === 'fail') {
+            this.$message({
+              type: 'error',
+              message: response.msg
+            })
+            this.listLoading = false
+          }
+        })
+    },
+    /**
+     * 分页条件查询
+     */
+    paged() {
+      this.pageCondition.page = 1
+      this.pageCondition.start = 0
+      if (this.createTimes && this.createTimes.length === 2) {
+        this.pageCondition.beginDate = this.createTimes[0]
+        this.pageCondition.endDate = this.createTimes[1]
+      }
+      this.page()
+    },
+    /**
+     * 页面页数跳转
+     */
+    pagesNum(pageNum) {
+      this.pageCondition.page = pageNum
+      this.pageCondition.start = (this.pageCondition.page - 1) * this.pageCondition.limit
+      this.page(this.pageCondition)
+    },
+    /**
+     * 页面限制条数
+     */
+    pagesLimit(pageLimit) {
+      this.pageCondition.limit = pageLimit
+      this.pageCondition.start = (this.pageCondition.page - 1) * this.pageCondition.limit
+      this.page(this.pageCondition)
+    },
+    /**
+     * 重置表单
+     */
+    resetData() {
+      this.pageCondition.keyword = ''
+      this.createTimes = ''
+      this.pageCondition.phone = ''
+      this.pageCondition.username = ''
+      this.pageCondition.stuNo = ''
+      this.pageCondition.name = ''
+      this.paged()
+    },
+    /**
+     * 更改状态
+     */
+    getStatus(row, column) {
+      if (row.state === '1') {
+        return '登录失败'
+      } else {
+        return '登录成功'
+      }
+    },
+    removeDataById(id) {
+      this.$confirm('此操作将永久删除数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        logapi.removeDataById(id)
+          .then(response => {
+            this.$message({
+              type: 'success',
+              message: '删除成功'
+            })
+            logapi.page(this.pageCondition)
+              .then(response => {
+                if (response.data.data.length === 0) {
+                  this.pageCondition.page = this.pageCondition.page - 1
+                  this.pageCondition.start = (this.pageCondition.page - 1) * this.pageCondition.limit
+                  this.page(this.pageCondition)
+                } else {
+                  this.page(this.pageCondition)
+                }
+              })
+          })
+      })
+    }
+
   }
 }
 </script>

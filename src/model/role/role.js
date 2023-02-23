@@ -1,11 +1,11 @@
 
-let RoleModel={
-    id:'',
-    roleName:'',
-    roleCode:'',
-    description:''
+const RoleModel = {
+  id: '',
+  roleName: '',
+  roleCode: '',
+  description: ''
 }
-export{
-    RoleModel
+export {
+  RoleModel
 }
 
