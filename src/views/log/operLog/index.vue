@@ -21,6 +21,9 @@
             <el-form-item label="登录名">
               <el-input v-model="pageCondition.username" style="width: 20%" prefix-icon="el-icon-search" placeholder="角色名称" />
             </el-form-item>
+            <el-form-item label="登录名">
+              <el-input v-model="pageCondition.moduleName" style="width: 20%" prefix-icon="el-icon-search" placeholder="角色名称" />
+            </el-form-item>
           </el-col>
         </el-row>
         <el-row style="display:flex">

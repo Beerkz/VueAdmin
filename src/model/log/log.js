@@ -29,7 +29,8 @@ const logCondition = {
   page: 1,
   beginDate: '',
   endDate: '',
-  username: ''
+  username: '',
+  moduleName: ''
 }
 export {
   loginLog,
