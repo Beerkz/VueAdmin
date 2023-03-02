@@ -4,7 +4,7 @@
     <div class="search-div">
       <el-form label-width="70px" size="small">
         <el-row>
-          <el-col :span="10">
+          <el-col :span="12">
             <el-form-item label="操作时间">
               <el-date-picker
                 v-model="createTimes"
@@ -13,16 +13,20 @@
                 start-placeholder="开始时间"
                 end-placeholder="结束时间"
                 value-format="yyyy-MM-dd HH:mm:ss"
-                style="margin-right: 10px;width: 100%;"
+                style="margin-right: 10px;width: 80%;"
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+        </el-row>
+        <el-row>
+          <el-col :span="6">
             <el-form-item label="登录名">
-              <el-input v-model="pageCondition.username" style="width: 20%" prefix-icon="el-icon-search" placeholder="角色名称" />
+              <el-input v-model="pageCondition.username" style="width:100%" prefix-icon="el-icon-search" placeholder="角色名称" />
             </el-form-item>
-            <el-form-item label="登录名">
-              <el-input v-model="pageCondition.moduleName" style="width: 20%" prefix-icon="el-icon-search" placeholder="角色名称" />
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="模块名称">
+              <el-input v-model="pageCondition.moduleName" style="width: 100%" prefix-icon="el-icon-search" placeholder="模块名称" />
             </el-form-item>
           </el-col>
         </el-row>
