@@ -5,7 +5,7 @@
       <el-form label-width="70px" size="small">
         <el-row>
           <el-col :span="6">
-            <el-form-item label="姓名">
+            <el-form-item label="实验室名称">
               <el-input v-model="pageCondition.labName" style="width: 90%" placeholder="实验室名称" />
             </el-form-item>
           </el-col>
@@ -18,7 +18,7 @@
     </div>
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" :disabled="$hasBP('bnt.sysUser.add') === false">添 加</el-button>
+      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertLab">添 加</el-button>
     </div>
     <!-- 表格 -->
     <el-table
@@ -81,32 +81,34 @@
     />
 
     <!-- 弹出层 -->
-    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
-      <el-form ref="dataForm" :model="labModelInfo" label-width="100px" size="small" style="padding-right: 40px;" :disabled="updateDialogVisible" />
-      <el-form-item>
-        <el-upload
-          class="avatar-uploader"
-          http-request=""
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="实验室名称">
-
-      </el-form-item>
-      <el-form-item label="角色:" label-width="30%">
-        <el-select v-model="userList" placeholder="选择实验室负责人" :disabled="false" multiple>
-          <el-option
-            v-for="item in userList"
-            :key="item.id"
-            :label="item.username"
-            :value="item.id"
+    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="60%">
+      <el-form ref="dataForm" label-position="left" :model="labModelInfo" label-width="100%" size="small" style="padding-right: 40px;" :disabled="updateDialogVisible">
+        <el-form-item label-width="20%" label="上传图片">
+          <el-upload
+            action
+            class="avatar-uploader"
+            :http-request="addPicture"
+            :file-list="fileList"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="labModelInfo.labUrl" :src="labModelInfo.labUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>
+        </el-form-item>
+        <el-form-item label-width="20%" label="实验室名称:">
+          <el-input v-model="labModelInfo.labName" />
+        </el-form-item>
+        <el-form-item label="实验室简介:" label-width="20%">
+          <el-input
+            v-model="labModelInfo.introduction"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入实验室简介"
           />
-        </el-select>
-      </el-form-item>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
         <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
@@ -118,8 +120,7 @@
 <script>
 import { labCondition, labModel } from '@/model/manageLab/lab'
 import labApi from '@/api/manageLab/lab/lab'
-import userApi from '@/api/user/user'
-
+import attachmentApi from '@/api/attachment/attachment'
 export default {
   data() {
     return {
@@ -132,14 +133,15 @@ export default {
       view: false,
       updateDialogVisible: false,
       labModelInfo: labModel,
-      userList: []
+      userList: [],
+      fileList: []
 
     }
   },
   created() {
+    // console.log(11,this.labModelInfo)
     console.log(this.pageCondition)
     this.page()
-
   },
   methods: {
     /**
@@ -204,22 +206,28 @@ export default {
       this.paged()
     },
     handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+      this.imageUrl = URL.createObjectURL(file.raw)
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
+        this.$message.error('上传头像图片只能是 JPG 格式!')
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+        this.$message.error('上传头像图片大小不能超过 2MB!')
       }
-      return isJPG && isLt2M;
+      return isJPG && isLt2M
+    },
+    addPicture(file) {
+      const formDatas = new FormData()
+      formDatas.append('files', file.file)
+      attachmentApi.uploadAttachments(formDatas)
+    },
+    insertLab() {
+      this.dialogVisible = true
     }
-  }
-
   }
 }
 </script>

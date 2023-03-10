@@ -8,7 +8,7 @@ const labModel = {
   labName: '',
   latitude: '',
   longitude: '',
-  Introduction: '',
+  introduction: '',
   warning: '',
   capacity: '',
   labManagerId: '',
