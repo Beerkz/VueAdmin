@@ -4,7 +4,7 @@
     <div class="search-div">
       <el-form label-width="80px" size="small">
         <el-row>
-          <el-col :span="8">
+          <el-col :span="6">
             <el-form-item label="实验室名称:" label-width="30%" label-position="left">
               <el-input v-model="pageCondition.labName" />
 

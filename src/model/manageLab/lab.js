@@ -13,7 +13,8 @@ const labModel = {
   capacity: '',
   labManagerId: '',
   labUrl: '',
-  devices: []
+  devices: [],
+  spliceTimeIds: []
 }
 
 export {

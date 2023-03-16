@@ -48,5 +48,11 @@ export default {
       url: `${user_api}/delete/${id}`,
       method: 'get'
     })
+  },
+  getRoleUser(code) {
+    return request({
+      url: `${user_api}` + '/getroleuser/' + `${code}`,
+      method: 'get',
+    })
   }
 }
