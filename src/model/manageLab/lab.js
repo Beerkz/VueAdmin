@@ -5,6 +5,7 @@ const labCondition = {
   labName: ''
 }
 const labModel = {
+  id:'',
   labName: '',
   latitude: '',
   longitude: '',
