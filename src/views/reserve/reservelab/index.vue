@@ -155,10 +155,10 @@
           <el-input v-model="labModelInfo.labName" style="width:30%" clearable />
         </el-form-item>
         <el-form-item label-width="20%" label="预约时间:">
+<!--          :picker-options="pickerOptions"-->
+<!--          default-value="reserveCondition.reserveDate"-->
           <el-date-picker
             v-model="reserveInfo.reserveDate"
-            :picker-options="pickerOptions"
-            default-value="reserveCondition.reserveDate"
             type="date"
             placeholder="选择日期"
           />
@@ -179,7 +179,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" icon="el-icon-refresh-right" @click="reserveVisible = false">取 消</el-button>
-        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="reserve()">预 约</el-button>
+        <el-button  type="primary" icon="el-icon-check" size="small" @click="reserve()">预 约</el-button>
       </span>
     </el-dialog>
   </div>
@@ -363,7 +363,7 @@ export default {
     },
     reserveViewLab(id) {
       this.reserveInfo = {}
-      this.reserveInfo.reserveDate = new Date()
+      // this.reserveInfo.reserveDate = new Date()
       labApi.getLabInfo(id).then(response => {
         if (response.identifier === 'fail') {
           this.$message({
@@ -394,7 +394,16 @@ export default {
     reserve() {
       this.reserveInfo.labId = this.labModelInfo.id
       this.reserveInfo.spliceTimeId = this.reserveTimeId
-      reserveApi.reserve(this.reserveInfo)
+      reserveApi.reserve(this.reserveInfo).then(response => {
+        if (response.identifier === 'fail') {
+          this.$message({
+            type: 'error',
+            message: response.msg
+          })
+        } else {
+          this.reserveVisible = false
+        }
+      })
     }
   }
 }

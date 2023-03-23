@@ -19,8 +19,27 @@
               <el-input v-model="pageCondition.phone" style="width: 90%" placeholder="手机号码" />
             </el-form-item>
           </el-col>
+          <el-col :span="6">
+            <el-form-item label="学号">
+              <el-input v-model="pageCondition.stuNo" style=";width: 90%" placeholder="学号" />
+            </el-form-item>
+          </el-col>
         </el-row>
-        <el-row />
+        <el-row>
+          <el-col :span="8">
+            <el-form-item label="操作时间">
+              <el-date-picker
+                v-model="createTimes"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始时间"
+                end-placeholder="结束时间"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                style="margin-right: 10px;width: 100%;"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-row style="display:flex">
           <el-button type="primary" icon="el-icon-search" size="mini" @click="paged">搜索</el-button>
           <el-button icon="el-icon-refresh" size="mini" @click="resetData">重置</el-button>
@@ -29,7 +48,7 @@
     </div>
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" :disabled="$hasBP('bnt.sysUser.add') === false" @click="insertUser">添 加</el-button>
+      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertUser" :disabled="$hasBP('bnt.sysUser.add') === false">添 加</el-button>
     </div>
     <!-- 表格 -->
     <el-table
@@ -50,21 +69,39 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="labName" label="实验室名称" />
-      <el-table-column prop="reserveName" label="预约人姓名" />
-      <el-table-column prop="reserveTel" label="预约人手机" />
-      <el-table-column prop="reserveDate" label="申请日期" width="160" />
-      <el-table-column prop="spliceTime" label="预约时间段" width="160" />
-      <el-table-column prop="statusName" label="审批状态" />
+      <el-table-column prop="username" label="用户名" />
+      <el-table-column prop="name" label="姓名" />
+      <el-table-column prop="stuNo" label="学号" />
+      <el-table-column prop="phone" label="手机" />
       <!--      <el-table-column prop="deptName" label="部门" />-->
       <!--      <el-table-column prop="postName" label="岗位" />-->
+      <el-table-column prop="createTime" label="创建时间" width="160" />
+      <el-table-column
+        label="是否启用"
+        width="160"
+      >
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="0"
+            :inactive-value="1"
+            active-text="启用"
+            inactive-text="禁用"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="changeStatus(scope.row)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <!--          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.update')  === false"/>-->
           <!--          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.list')  === false"/>-->
           <!--          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" :disabled="$hasBP('bnt.sysUser.remove')  === false"/>-->
 
-          <el-button type="primary" icon="el-icon-edit" size="mini" title="审批" @click="auditReserve(scope.row.id,scope.row.proKey)" />
+          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />
+          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" />
+          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)"/>
 
         </template>
       </el-table-column>
@@ -82,16 +119,10 @@
     />
 
     <!-- 弹出层 -->
-    <el-dialog title="添加/修改" :visible.sync="auditVisible" width="40%">
-      <el-form>
-        <el-form-item label="审批理由:" label-width="20%">
-          <el-input v-model="auditParam.reason" />
-        </el-form-item>
-      </el-form>
+    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" icon="el-icon-refresh-right" @click="auditVisible = false">取 消</el-button>
-        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="audit(0)">审批通过</el-button>
-        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="audit(1)">审批不通过</el-button>
+        <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
+        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -101,27 +132,23 @@
 import { userModel, userCondition } from '@/model/user/user'
 import roleApi from '@/api/role/role'
 import userApi from '@/api/user/user'
-import reserveApi from '@/api/reserve/reserve'
-import { pageCondition, reserveLabVo, reserveReason, reserveAuditParam } from '@/model/reserve/reservelab'
 
 export default {
   data() {
     return {
       listLoading: true,
-      reserveVo: reserveLabVo,
+      usermodel: userModel,
       list: [],
       total: 0,
       createTimes: [],
       dialogVisible: false,
-      pageCondition: pageCondition,
+      pageCondition: userCondition,
       roleList: [],
       deptList: [],
       roleIds: [],
       view: false,
-      updateDialogVisible: false,
-      auditVisible: false,
-      auditReserveReason: reserveReason,
-      auditParam: reserveAuditParam
+      updateDialogVisible: false
+
     }
   },
   created() {
@@ -142,7 +169,7 @@ export default {
      * 角色分页查询
      */
     page() {
-      reserveApi.doReserve(this.pageCondition)
+      userApi.page(this.pageCondition)
         .then(response => {
           this.list = response.data.data
           this.total = response.data.total
@@ -218,32 +245,7 @@ export default {
       this.pageCondition.stuNo = ''
       this.pageCondition.name = ''
       this.paged()
-    },
-    auditReserve(id, prokey) {
-      this.auditVisible = true
-      this.auditParam.proKey = prokey
-      this.auditParam.id = id
-    },
-    audit(result) {
-      this.auditParam.result = result
-      reserveApi.auditReserve(this.auditParam).then(response => {
-        if (response.identifier === 'success') {
-          this.$message({
-            type: 'success',
-            message: '审批成功'
-          })
-          this.paged()
-          this.auditVisible = false
-        } else {
-          this.$message({
-            type: 'error',
-            message: response.msg
-          })
-          this.listLoading = false
-        }
-      })
     }
-
   }
 }
 </script>
