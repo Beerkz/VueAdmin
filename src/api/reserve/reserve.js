@@ -28,5 +28,12 @@ export default {
       method: 'post',
       data: data
     })
+  },
+  getMyReserveInfo(id) {
+    return request({
+      url: `${reserve_api}` + '/my/reserve/info/'+`${id}`,
+      method: 'get'
+    })
   }
+
 }

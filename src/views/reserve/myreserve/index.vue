@@ -2,10 +2,10 @@
   <div class="app-container">
     <!--查询表单-->
     <div class="search-div">
-      <el-form label-width="70px" size="small">
+      <el-form label-width="80px" size="small">
         <el-row>
-          <el-col :span="6">
-            <el-form-item label="实验室名称">
+          <el-col :span="8">
+            <el-form-item label-width="25%" label="实验室名称">
               <el-input v-model="pageCondition.labName" style="width: 90%" placeholder="姓名" />
             </el-form-item>
           </el-col>
@@ -17,9 +17,6 @@
       </el-form>
     </div>
     <!-- 工具条 -->
-    <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertUser" :disabled="$hasBP('bnt.sysUser.add') === false">添 加</el-button>
-    </div>
     <!-- 表格 -->
     <el-table
       v-loading="listLoading"
@@ -52,10 +49,9 @@
           <!--          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.update')  === false"/>-->
           <!--          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" :disabled="$hasBP('bnt.sysUser.list')  === false"/>-->
           <!--          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" :disabled="$hasBP('bnt.sysUser.remove')  === false"/>-->
-
-          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)"/>
+          <!--          <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />-->
+          <el-button type="primary" icon="el-icon-view" size="mini" title="查看" @click="viewMyReserve(scope.row.id)" />
+          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
 
         </template>
       </el-table-column>
@@ -73,10 +69,33 @@
     />
 
     <!-- 弹出层 -->
-    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
+    <el-dialog title="预约信息" :visible.sync="dialogVisible" width="40%">
+      <el-form label-position="left" :model="myReserveInfo">
+        <el-form-item label="实验室名称:" label-width="20%">
+          <el-input v-model="myReserveInfo.labName" style="width:30%" />
+        </el-form-item>
+        <el-form-item label="预约日期:" label-width="20%">
+          <el-input v-model="myReserveInfo.reserveDate" style="width:30%" />
+        </el-form-item>
+        <el-form-item label="预约时间段:" label-width="20%">
+          <el-input v-model="myReserveInfo.spliceTime" style="width:50%" />
+        </el-form-item>
+        <el-form-item label="预约状态:" label-width="20%">
+          <el-input v-model="myReserveInfo.statusName" style="width:30%" />
+        </el-form-item>
+        <el-form-item label="审核状态:" label-width="20%">
+          <el-input v-model="myReserveInfo.stepName" style="width:30%" />
+        </el-form-item>
+        <el-form-item v-if="myReserveInfo.teacherAuditReason!=null" label="教师审批理由:" label-width="20%">
+          <el-input v-model="myReserveInfo.teacherAuditReason" />
+        </el-form-item>
+        <el-form-item v-if="myReserveInfo.managerAuditReason!=null" label="管理员审批理由:" label-width="25%">
+          <el-input v-model="myReserveInfo.managerAuditReason" />
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
-        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
+        <!--        <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>-->
       </span>
     </el-dialog>
   </div>
@@ -85,10 +104,8 @@
 <script>
 import { userModel } from '@/model/user/user'
 import roleApi from '@/api/role/role'
-import userApi from '@/api/user/user'
 import reserveApi from '@/api/reserve/reserve'
-import { pageCondition } from '@/model/reserve/reservelab'
-
+import { pageCondition, myReserveVo } from '@/model/reserve/reservelab'
 export default {
   data() {
     return {
@@ -103,7 +120,8 @@ export default {
       deptList: [],
       roleIds: [],
       view: false,
-      updateDialogVisible: false
+      updateDialogVisible: false,
+      myReserveInfo: myReserveVo
 
     }
   },
@@ -179,6 +197,14 @@ export default {
       this.pageCondition.stuNo = ''
       this.pageCondition.name = ''
       this.paged()
+    },
+    // 查看我的预约
+    viewMyReserve(id) {
+      reserveApi.getMyReserveInfo(id).then(response=>{
+        this.myReserveInfo = response.data
+        this.dialogVisible = true
+        console.log(response.data)
+      })
     }
   }
 }

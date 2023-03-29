@@ -45,7 +45,7 @@
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-view" size="mini" title="查看" @click="viewLab(scope.row.id)" />
-          <el-button type="primary" icon="el-icon-view" size="mini" title="预约" @click="reserveViewLab(scope.row.id)" />
+          <el-button type="primary" icon="el-icon-edit" size="mini" title="预约" @click="reserveViewLab(scope.row.id)" />
         </template>
       </el-table-column>
     </el-table>

@@ -26,8 +26,6 @@ const reserveAuditParam={
   proKey: '',
   reason: '',
   result: ''
-
-
 }
 const reserveLabVo = {
   id: '',
@@ -52,10 +50,23 @@ const reserveLabVo = {
   status: ''
 
 }
+// 我的预约信息查看实体类
+const myReserveVo = {
+  id: '',
+  spliceTime: '',
+  labName: '',
+  reserveDate: '',
+  teacherAuditReason: '',
+  managerAuditReason: '',
+  statusName: '',
+  stepName: '',
+  labUrl: ''
+}
 export {
   pageCondition,
   reserveModel,
   reserveLabVo,
   reserveReason,
-  reserveAuditParam
+  reserveAuditParam,
+  myReserveVo
 }
