@@ -5,8 +5,13 @@
       <el-form label-width="70px" size="small">
         <el-row>
           <el-col :span="6">
-            <el-form-item label="姓名">
-              <el-input v-model="pageCondition.name" style="width: 90%" placeholder="姓名" />
+            <el-form-item label="设备名称：" label-width="40%">
+              <el-input v-model="pageCondition.deviceName" style="width: 90%" placeholder="支持模糊查询" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="实验室名称：" label-width="40%">
+              <el-input v-model="pageCondition.labName" style="width: 90%" placeholder="支持模糊查询" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -18,7 +23,7 @@
     </div>
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertUser" :disabled="$hasBP('bnt.sysUser.add') === false">添 加</el-button>
+      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertDevice">添 加</el-button>
     </div>
     <!-- 表格 -->
     <el-table
@@ -70,7 +75,45 @@
     />
 
     <!-- 弹出层 -->
-    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="40%">
+    <!-- 弹出层 -->
+    <el-dialog title="添加/修改" :visible.sync="dialogVisible" width="60%" style="overflow: auto;height: 800px">
+      <el-form ref="dataForm" label-position="left" :model="deviceModelInfo" label-width="100%" size="small" style="padding-right: 40px;" :disabled="updateDialogVisible">
+        <el-form-item label-width="20%" label="实验室头像">
+          <el-upload
+            action
+            class="avatar-uploader"
+            :http-request="addPicture"
+            :file-list="fileList"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="deviceModelInfo.deviceUrl" :src="deviceModelInfo.deviceUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>
+        </el-form-item>
+        <el-form-item label-width="20%" label="设备名称:">
+          <el-input v-model="deviceModelInfo.deviceName" style="width:30%" clearable />
+        </el-form-item>
+        <el-form-item label-width="20%" label="设备用途:">
+          <el-input v-model="deviceModelInfo.deviceUsage" style="width:30%" clearable />
+        </el-form-item>
+        <el-form-item label-width="20%" label="设备原理:">
+          <el-input v-model="deviceModelInfo.devicePrinciple" style="width:30%" clearable />
+        </el-form-item>
+        <el-form-item label="分配实验室:" label-width="20%">
+          <el-select v-model="deviceLabId" placeholder="选择实验室" :disabled="false">
+            <el-option value="null" label="暂时不分配"></el-option>
+            <el-option
+              v-for="item in items"
+              :key="item.id"
+              :label="item.labName"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+
       <span slot="footer" class="dialog-footer">
         <el-button size="small" icon="el-icon-refresh-right" @click="dialogVisible = false">取 消</el-button>
         <el-button v-if="updateDialogVisible === false" type="primary" icon="el-icon-check" size="small" @click="saveOrUpdate()">确 定</el-button>
@@ -82,26 +125,24 @@
 <script>
 import { userModel, userCondition } from '@/model/user/user'
 import roleApi from '@/api/role/role'
-import userApi from '@/api/user/user'
+import attachmentApi from '@/api/attachment/attachment'
 import deviceApi from '@/api/device/device'
-import { deviceCondition } from '@/model/device/device'
-
+import { pageCondition,deviceModel } from '@/model/device/device'
+import { labApi } from '@/api/manageLab/lab/lab'
 export default {
   data() {
     return {
       listLoading: true,
-      usermodel: userModel,
       list: [],
       total: 0,
       createTimes: [],
       dialogVisible: false,
-      pageCondition: deviceCondition,
-      roleList: [],
-      deptList: [],
-      roleIds: [],
+      pageCondition: pageCondition,
       view: false,
-      updateDialogVisible: false
-
+      updateDialogVisible: false,
+      deviceModelInfo: deviceModel,
+      items:[],
+      deviceLabId: ''
     }
   },
   created() {
@@ -176,6 +217,51 @@ export default {
       this.pageCondition.stuNo = ''
       this.pageCondition.name = ''
       this.paged()
+    },
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
+    addPicture(file) {
+      const formDatas = new FormData()
+      formDatas.append('files', file.file)
+      attachmentApi.uploadAttachments(formDatas).then(response => {
+        if (response.identifier === 'fail') {
+          this.$message({
+            type: 'error',
+            message: response.msg
+          })
+        } else {
+          this.deviceModelInfo.deviceUrl = response.data[0].fileSubUrl
+        }
+      })
+    },
+    getAllLabInfo() {
+      labApi.getAllLab().then(response=>{
+        if (response.identifier === 'fail') {
+          this.$message({
+            type: 'error',
+            message: response.msg
+          })
+        } else {
+          this.items = response.data
+        }
+      })
+    },
+    insertDevice() {
+      this.deviceModelInfo = {}
+      this.dialogVisible = true
     }
   }
 }

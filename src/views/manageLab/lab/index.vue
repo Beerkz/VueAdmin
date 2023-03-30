@@ -41,9 +41,9 @@
       </el-table-column>
 
       <el-table-column prop="labName" label="实验室名称" />
-      <el-table-column prop="introduction" label="实验室简介" />
-      <el-table-column prop="capacity" label="实验室容量" />
-      <el-table-column prop="labManagerName" label="负责人姓名" />
+      <el-table-column prop="introduction" label="实验室简介" width="150"/>
+      <el-table-column prop="capacity" label="实验室容量" width="100"/>
+      <el-table-column prop="labManagerName" label="负责人姓名" width="100" />
       <el-table-column prop="managerPhone" label="负责人电话" />
       <el-table-column prop="createTime" label="创建时间" width="160" />
       <el-table-column

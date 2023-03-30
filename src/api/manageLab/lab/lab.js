@@ -40,6 +40,12 @@ export default {
       url: `${lab_api}` + '/delete/' + `${id}`,
       method: 'get'
     }))
+  },
+  getAllLab(){
+    return request({
+      url: `${lab_api}` + '/all/lab',
+      method: 'post'
+    })
   }
 
 }

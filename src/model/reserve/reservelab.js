@@ -5,7 +5,9 @@ const pageCondition = {
   reserveDate: '',
   start: 0,
   limit: 5,
-  page: 1
+  page: 1,
+  username: '',
+  phone: ''
 }
 const reserveModel = {
   labId: '',

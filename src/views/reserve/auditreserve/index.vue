@@ -5,8 +5,8 @@
       <el-form label-width="70px" size="small">
         <el-row>
           <el-col :span="6">
-            <el-form-item label="姓名">
-              <el-input v-model="pageCondition.name" style="width: 90%" placeholder="姓名" />
+            <el-form-item label="实验室名称:">
+              <el-input v-model="pageCondition.labName" style="width: 90%" placeholder="姓名" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -28,9 +28,6 @@
       </el-form>
     </div>
     <!-- 工具条 -->
-    <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" :disabled="$hasBP('bnt.sysUser.add') === false" @click="insertUser">添 加</el-button>
-    </div>
     <!-- 表格 -->
     <el-table
       v-loading="listLoading"
