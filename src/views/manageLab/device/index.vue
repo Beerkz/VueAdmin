@@ -57,7 +57,7 @@
 
           <el-button type="primary" icon="el-icon-edit" size="mini" title="修改" @click="editUser(scope.row.id)" />
           <el-button type="danger" icon="el-icon-view" size="mini" title="查看" @click="viewUser(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)"/>
+          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="removeDataById(scope.row.id)" />
 
         </template>
       </el-table-column>
@@ -101,9 +101,12 @@
         <el-form-item label-width="20%" label="设备原理:">
           <el-input v-model="deviceModelInfo.devicePrinciple" style="width:30%" clearable />
         </el-form-item>
+        <el-form-item label-width="20%" label="设备参数:">
+          <el-input v-model="deviceModelInfo.deviceParam" style="width:30%" clearable />
+        </el-form-item>
         <el-form-item label="分配实验室:" label-width="20%">
           <el-select v-model="deviceLabId" placeholder="选择实验室" :disabled="false">
-            <el-option value="null" label="暂时不分配"></el-option>
+            <el-option value="null" label="暂时不分配" />
             <el-option
               v-for="item in items"
               :key="item.id"
@@ -123,12 +126,11 @@
 
 </template>
 <script>
-import { userModel, userCondition } from '@/model/user/user'
 import roleApi from '@/api/role/role'
 import attachmentApi from '@/api/attachment/attachment'
 import deviceApi from '@/api/device/device'
-import { pageCondition,deviceModel } from '@/model/device/device'
-import { labApi } from '@/api/manageLab/lab/lab'
+import { pageCondition, deviceModel } from '@/model/device/device'
+import labApi from '@/api/manageLab/lab/lab'
 export default {
   data() {
     return {
@@ -141,8 +143,8 @@ export default {
       view: false,
       updateDialogVisible: false,
       deviceModelInfo: deviceModel,
-      items:[],
-      deviceLabId: ''
+      items: [],
+      deviceLabId: null
     }
   },
   created() {
@@ -159,9 +161,6 @@ export default {
     })
   },
   methods: {
-    /**
-     * 角色分页查询
-     */
     page() {
       deviceApi.page(this.pageCondition)
         .then(response => {
@@ -248,7 +247,7 @@ export default {
       })
     },
     getAllLabInfo() {
-      labApi.getAllLab().then(response=>{
+      labApi.getAllLab().then(response => {
         if (response.identifier === 'fail') {
           this.$message({
             type: 'error',
@@ -256,12 +255,29 @@ export default {
           })
         } else {
           this.items = response.data
+          this.dialogVisible = true
         }
       })
     },
     insertDevice() {
       this.deviceModelInfo = {}
-      this.dialogVisible = true
+      this.deviceLabId = 'null'
+      this.getAllLabInfo()
+    },
+    saveOrUpdate() {
+      if (this.deviceLabId !== 'null') {
+        this.deviceModelInfo.labId = this.deviceLabId
+      }
+      deviceApi.insert(this.deviceModelInfo).then(response => {
+        if (response.identifier === 'fail') {
+          this.$message({
+            type: 'error',
+            message: response.msg
+          })
+        } else {
+          this.dialogVisible = false
+        }
+      })
     }
   }
 }

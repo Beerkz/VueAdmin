@@ -19,7 +19,7 @@
     </div>
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" icon="el-icon-plus" size="mini" @click="insertLab">添 加</el-button>
+      <el-button v-show="$hasBP('bnt.lab.add')  !== false" type="success" icon="el-icon-plus" size="mini" @click="insertLab" :disabled="$hasBP('bnt.lab.add')  === false">添 加</el-button>
     </div>
     <!-- 表格 -->
     <el-table
@@ -60,14 +60,15 @@
             active-color="#13ce66"
             inactive-color="#ff4949"
             @change="changeStatus(scope.row.id)"
+            :disabled="$hasBP('bnt.lab.openClose')  === false"
           />
         </template>
       </el-table-column>
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-view" size="mini" title="查看" @click="viewLab(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-edit" size="mini" title="修改" @click="updateLab(scope.row.id)" />
-          <el-button type="danger" icon="el-icon-delete" size="mini" title="删除" @click="deleteLab(scope.row.id)" />
+          <el-button v-show="$hasBP('bnt.lab.update')  !== false" type="danger" icon="el-icon-edit" size="mini" title="修改" :disabled="$hasBP('bnt.lab.update')  === false" @click="updateLab(scope.row.id)" />
+          <el-button v-show="$hasBP('bnt.lab.delete')  !== false"type="danger" icon="el-icon-delete" size="mini" title="删除" :disabled="$hasBP('bnt.lab.dlete')  === false" @click="deleteLab(scope.row.id)" />
 
         </template>
       </el-table-column>

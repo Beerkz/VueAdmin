@@ -41,7 +41,7 @@ export default {
       method: 'get'
     }))
   },
-  getAllLab(){
+  getAllLab() {
     return request({
       url: `${lab_api}` + '/all/lab',
       method: 'post'
